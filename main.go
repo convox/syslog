@@ -10,6 +10,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/jasonmoo/lambda_proc"
+
+	"github.com/mweagle/Sparta/aws/cloudwatchlogs"
 )
 
 func main() {
@@ -50,10 +52,18 @@ func main() {
 
 		fmt.Fprintf(os.Stderr, "url=%s\n", url)
 
-		var v map[string]interface{}
-		if err := json.Unmarshal(eventJSON, &v); err != nil {
-			return nil, err
+		var event cloudwatchlogs.Event
+		err = json.Unmarshal([]byte(eventJSON), &event)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "json.Unmarshal err=%s\n", err)
 		}
-		return v, nil
+
+		d, err := event.AWSLogs.DecodedData()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "AWSLogs.DecodedData err=%s\n", err)
+		}
+
+		fmt.Fprintf(os.Stderr, "LogEvents=%+v\n", d.LogEvents)
+		return fmt.Sprintf("LogGroup=%s LogStream=%s MessageType=%s NumLogEvents=%d", d.LogGroup, d.LogStream, d.MessageType, len(d.LogEvents)), err
 	})
 }
