@@ -6,11 +6,11 @@ import (
 	"io/ioutil"
 	"os"
 
+	syslog "github.com/RackSec/srslog"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/jasonmoo/lambda_proc"
-
 	"github.com/mweagle/Sparta/aws/cloudwatchlogs"
 )
 
@@ -56,14 +56,32 @@ func main() {
 		err = json.Unmarshal([]byte(eventJSON), &event)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "json.Unmarshal err=%s\n", err)
+			return nil, err
 		}
 
 		d, err := event.AWSLogs.DecodedData()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "AWSLogs.DecodedData err=%s\n", err)
+			return nil, err
 		}
 
-		fmt.Fprintf(os.Stderr, "LogEvents=%+v\n", d.LogEvents)
-		return fmt.Sprintf("LogGroup=%s LogStream=%s MessageType=%s NumLogEvents=%d", d.LogGroup, d.LogStream, d.MessageType, len(d.LogEvents)), err
+		w, err := syslog.Dial("tcp", url, syslog.LOG_INFO, "convox/syslog")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "syslog.Dial err=%s\n", err)
+			return nil, err
+		}
+		defer w.Close()
+
+		logs, errs := 0, 0
+		for _, e := range d.LogEvents {
+			err := w.Info(e.Message)
+			if err != nil {
+				errs += 1
+			} else {
+				logs += 1
+			}
+		}
+
+		return fmt.Sprintf("LogGroup=%s LogStream=%s MessageType=%s NumLogEvents=%d logs=%d errs=%d", d.LogGroup, d.LogStream, d.MessageType, len(d.LogEvents), logs, errs), nil
 	})
 }
