@@ -53,6 +53,12 @@ Report:
 * Log errors to Lambda CloudWatch Logs
 * TODO: Log how many lines processed, and how many successful and failed lines transmitted to CloudWatch Custom Metrics
 
+## Contributing
+
+* Join the [Convox Slack](https://invite.convox.com) channel to ask questions from the community and team
+* Open a [GitHub Issue](https://github.com/convox/rack/issues/new) for bugs and feature requests
+* Initiate a [GitHub Pull Request](https://help.github.com/articles/using-pull-requests/) to submit patches
+
 ## References
 
 * convox/papertrail - https://github.com/convox/papertrail
