@@ -1,38 +1,62 @@
 # convox/syslog
 
-CloudWatch Logs -> Syslog as a Lambda function
+Effortlessly forward all your container logs to a Syslog server.
+
+On a container cluster, logs are generated from countless containers on countless hosts. We need to:
+
+* Collect all the container logs
+* Forward logs off the instances a centralized **utility log service**
+* Deliver, process, reformat and forward every log to one or more 3rd party log services
+
+On AWS, CloudWatch Logs is the **utility log service**, offering high ingestion throughput and cheap storate. A Logs Subscription Filter **coordinates** the deceptively tough job of **delivering every log** to a custom Lambda Function **log processor** and **syslog forwarder**.
+
+With Convox and AWS, you get a log pipeline that is:
+
+* Simple: `convox logs` and `convox services add syslog --url` are all you need to know
+* Secure: Logs stay in your AWS account and are wrapped in TLS before going anywhere else
+* Reliable: Let AWS do all the heavy-lifting
+* Scalable: 5 MB/sec per app
+* Affordable: 10 GB/mo of logs costs $5/mo to ingest and pennies to store and process
+* Configurable: Open source means you can understand and hack
 
 ## Usage
 
 ```bash
-$ convox services add syslog --name pt --url log3.papertrailapp.com:11235
+$ convox services add syslog --name pt --url tcp+tls://log1.papertrailapp.com:11235
 $ convox services link pt --app myapp
 ```
 
 ## How It Works
 
+Infrastructure:
+
+* Logs are sent from ECS to CloudWatch logs with the Docker awslogs driver.
+
 Install:
 
-* Lambda function and related resources are managed with CloudFormation
+* Lambda Function, Permission, Role and Subscription are managed with CloudFormation
+* In convox/rack, the LogGroup Parameter is substitued with many App LogGroup values
 
 Invoke:
 
-* On function invoke, describe CF stack to get runtime information like destination URL
-* Cache runtime information to avoid excessive CF DescribeStack calls
+* On Lambda function invoke, describe CF stack to get runtime information like destination URL
+* Cache the URL to /tmp/url minimize subsequent CF DescribeStack calls
 
 Process:
 
-* Unpack CloudWatch Log events
-* Send over syslog protocol
+* Dial syslog URL
+* Unpack CloudWatch Log events from Lambda context
+* Write logs lines
 
 Report:
 
 * Log errors to Lambda CloudWatch Logs
-* Log lines processed, sent successfully and sent failed to CloudWatch Custom Metrics
+* TODO: Log how many lines processed, and how many successful and failed lines transmitted to CloudWatch Custom Metrics
 
 ## References
 
 * convox/papertrail - https://github.com/convox/papertrail
+* Docker awslogs driver - https://github.com/docker/docker/tree/master/daemon/logger/awslogs
 * LambdaProc - https://github.com/jasonmoo/lambda_proc
 * Sparta - https://github.com/mweagle/Sparta
 * srslog - https://github.com/RackSec/srslog
