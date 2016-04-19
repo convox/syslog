@@ -12,12 +12,12 @@ On AWS, CloudWatch Logs is the **utility log service**, offering high ingestion 
 
 With Convox and AWS, you get a log pipeline that is:
 
-* Simple: `convox logs` and `convox services add syslog --url` are all you need to know
-* Secure: Logs stay in your AWS account and are wrapped in TLS before going anywhere else
-* Reliable: Let AWS do all the heavy-lifting
-* Scalable: 5 MB/sec per app
-* Affordable: 10 GB/mo of logs costs $5/mo to ingest and pennies to store and process
-* Configurable: Open source means you can understand and hack
+* **Simple.** `convox logs` and `convox services add syslog --url` are all you need to know
+* **Secure.** Logs stay in your AWS account and are wrapped in TLS before going anywhere else
+* **Reliable.** Let AWS do all the heavy-lifting
+* **Scalable.** 5 MB/sec per app
+* **Affordable.** 10 GB/mo of logs costs $5/mo to ingest and pennies to store and process
+* **Configurable.** Open source means you can understand and hack
 
 ## Usage
 
