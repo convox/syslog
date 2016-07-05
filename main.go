@@ -33,8 +33,6 @@ func main() {
 			return nil, err
 		}
 
-		fmt.Fprintf(os.Stderr, "event=%q url=%s\n", eventJSON, u.String())
-
 		var event cloudwatchlogs.Event
 		err = json.Unmarshal([]byte(eventJSON), &event)
 		if err != nil {
@@ -47,8 +45,6 @@ func main() {
 			fmt.Fprintf(os.Stderr, "AWSLogs.DecodedData err=%s\n", err)
 			return nil, err
 		}
-
-		fmt.Fprintf(os.Stderr, "DecodedData=%+v\n", d)
 
 		w, err := syslog.Dial(u.Scheme, u.Host, syslog.LOG_INFO, "convox/syslog")
 		if err != nil {
