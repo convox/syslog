@@ -22,7 +22,7 @@ With Convox and AWS, you get a log pipeline that is:
 ## Usage
 
 ```bash
-$ convox services add syslog --name pt --url tcp+tls://log1.papertrailapp.com:11235
+$ convox services create syslog --name pt --url tcp+tls://log1.papertrailapp.com:11235
 $ convox services link pt --app myapp
 ```
 
