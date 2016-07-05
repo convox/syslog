@@ -15,6 +15,6 @@ main: *.go
 
 release: lambda.zip
 	aws s3 cp lambda.zip s3://convox/lambda/syslog.zip  --acl public-read
-	for region in us-east-1 us-west-2 eu-west-1 ap-northeast-1; do \
+	for region in us-east-1 us-west-2 eu-west-1 ap-northeast-1 ap-southeast-2; do \
 		aws s3 cp lambda.zip s3://convox-$$region/lambda/syslog.zip --acl public-read; \
 	done
