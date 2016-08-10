@@ -8,7 +8,7 @@ On a container cluster, logs are generated from countless containers on countles
 * Forward logs off the instances a centralized **utility log service**
 * Deliver, process, reformat and forward every log to one or more 3rd party log services
 
-On AWS, CloudWatch Logs is the **utility log service**, offering high ingestion throughput and cheap storate. A Logs Subscription Filter **coordinates** the deceptively tough job of **delivering every log** to a custom Lambda Function **log processor** and **syslog forwarder**.
+On AWS, CloudWatch Logs is the **utility log service**, offering high ingestion throughput and cheap storage. A Logs Subscription Filter **coordinates** the deceptively tough job of **delivering every log** to a custom Lambda Function **log processor** and **syslog forwarder**.
 
 With Convox and AWS, you get a log pipeline that is:
 
