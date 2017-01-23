@@ -21,7 +21,8 @@ import (
 
 func main() {
 	lambda_proc.Run(func(context *lambda_proc.Context, eventJSON json.RawMessage) (interface{}, error) {
-		syslogUrl, err := readOrDescribeURL(context.FunctionName)
+		stackName := getStackName(context.FunctionName)
+		syslogUrl, err := readOrDescribeURL(stackName)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "readOrDescribeURL err=%s\n", err)
 			return nil, err
@@ -108,6 +109,15 @@ func contentFormatter(p syslog.Priority, hostname, tag, content string) string {
 		22, 1, timestamp.Format(time.RFC3339), hostname, program, tag, content)
 
 	return msg
+}
+
+func getStackName(functionName string) string {
+	i := strings.Index(functionName, "-Function")
+	if i == -1 {
+		return functionName
+	} else {
+		return functionName[:i]
+	}
 }
 
 func readOrDescribeURL(name string) (string, error) {
