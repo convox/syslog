@@ -70,10 +70,13 @@ func main() {
 	})
 }
 
-var Re = regexp.MustCompile(`^([^:]+):([^/]+)/([^ ]+) (.*)(\n)?$`)
+var Re = regexp.MustCompile(`^(([a-zA-Z][a-zA-Z0-9-]*):([A-Z]+)/([a-z0-9-]+) )?(.*)(\n)?$`)
 
 // contentFormatter parses the content string to populate the entire syslog RFC5424 message. No os information is referenced.
+// With NativeLogging disabled:
 // convox-httpd-LogGroup-1KIJO8SS9F3Q9 1460682044602 web:RGBCKLEZHCX/ec329dcefd61 10.0.3.37 - - [15/Apr/2016:01:00:44 +0000] "GET / HTTP/1.1" 304 -
+// With NativeLogging enabled:
+// convox-httpd-LogGroup-1KIJO8SS9F3Q9 1460682044602 10.0.3.37 - - [15/Apr/2016:01:00:44 +0000] "GET / HTTP/1.1" 304 -
 func contentFormatter(p syslog.Priority, hostname, tag, content string) string {
 	hostname = os.Getenv("AWS_LAMBDA_FUNCTION_NAME")
 	timestamp := time.Now()
@@ -98,9 +101,13 @@ func contentFormatter(p syslog.Priority, hostname, tag, content string) string {
 	}
 
 	if m := Re.FindStringSubmatch(content); m != nil {
-		program = fmt.Sprintf("%s:%s", m[1], m[2])
-		tag = m[3]
-		content = m[4]
+		if m[1] != "" {
+			// Log message contains APP:RELEASE/CONTAINER_ID prefix
+			// only when the app does not use NativeLogging
+			program = fmt.Sprintf("%s:%s", m[2], m[3])
+			tag = m[4]
+		}
+		content = m[5]
 	} else {
 		fmt.Fprintf(os.Stderr, "Re.FindStringSubmatch miss\n")
 	}
