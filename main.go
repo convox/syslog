@@ -109,7 +109,7 @@ func contentFormatter(p syslog.Priority, hostname, tag, content string) string {
 		}
 		content = m[5]
 	} else {
-		fmt.Fprintf(os.Stderr, "Re.FindStringSubmatch miss\n")
+		fmt.Fprintf(os.Stderr, "Re.FindStringSubmatch miss content=%s\n", content)
 	}
 
 	msg := fmt.Sprintf("<%d>%d %s %s %s %s - - %s\n",
